@@ -5,13 +5,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -31,7 +33,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Laboratorio13Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    SizePositionExercise(
+                    AnimatedContentExercise(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -43,33 +45,59 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SizePositionExercise(modifier: Modifier = Modifier) {
-    var expanded by remember { mutableStateOf(false) }
-
-    val boxSize by animateDpAsState(
-        targetValue = if (expanded) 180.dp else 100.dp,
-        label = "Tamaño"
-    )
-
-    val boxOffset by animateDpAsState(
-        targetValue = if (expanded) 80.dp else 0.dp,
-        label = "Posición"
-    )
+fun AnimatedContentExercise(modifier: Modifier = Modifier) {
+    var state by remember { mutableStateOf("Loading") }
 
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { expanded = !expanded }) {
-            Text("Mover y cambiar tamaño")
+        AnimatedContent(
+            targetState = state,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            },
+            label = "Cambio de estado"
+        ) { targetState ->
+            when (targetState) {
+                "Loading" -> Box(
+                    modifier = Modifier
+                        .size(180.dp)
+                        .background(Color(0xFFFFC107)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Cargando...")
+                }
+
+                "Content" -> Box(
+                    modifier = Modifier
+                        .size(180.dp)
+                        .background(Color(0xFF4CAF50)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Contenido listo", color = Color.White)
+                }
+
+                "Error" -> Box(
+                    modifier = Modifier
+                        .size(180.dp)
+                        .background(Color(0xFFF44336)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Ocurrió un error", color = Color.White)
+                }
+            }
         }
 
-        Box(
-            modifier = Modifier
-                .offset(x = boxOffset)
-                .size(boxSize)
-                .background(Color(0xFF2196F3))
-        )
+        Button(onClick = {
+            state = when (state) {
+                "Loading" -> "Content"
+                "Content" -> "Error"
+                else -> "Loading"
+            }
+        }) {
+            Text("Cambiar estado")
+        }
     }
 }
