@@ -5,12 +5,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Laboratorio13Theme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    ColorAnimationExercise(
+                    SizePositionExercise(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -42,12 +43,17 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ColorAnimationExercise(modifier: Modifier = Modifier) {
-    var isBlue by remember { mutableStateOf(true) }
+fun SizePositionExercise(modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
 
-    val boxColor by animateColorAsState(
-        targetValue = if (isBlue) Color.Blue else Color.Green,
-        label = "Color del cuadro"
+    val boxSize by animateDpAsState(
+        targetValue = if (expanded) 180.dp else 100.dp,
+        label = "Tamaño"
+    )
+
+    val boxOffset by animateDpAsState(
+        targetValue = if (expanded) 80.dp else 0.dp,
+        label = "Posición"
     )
 
     Column(
@@ -55,14 +61,15 @@ fun ColorAnimationExercise(modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Button(onClick = { isBlue = !isBlue }) {
-            Text("Cambiar color")
+        Button(onClick = { expanded = !expanded }) {
+            Text("Mover y cambiar tamaño")
         }
 
         Box(
             modifier = Modifier
-                .size(150.dp)
-                .background(boxColor)
+                .offset(x = boxOffset)
+                .size(boxSize)
+                .background(Color(0xFF2196F3))
         )
     }
 }
